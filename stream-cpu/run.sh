@@ -14,9 +14,9 @@ export OMP_NUM_THREADS=32   # Only half cores are used
 RESULT=$(./stream.exe | awk '
   BEGIN                  {triad_best=0}
   /^Triad:/              {triad_best=$2}
-  /^Solution Validates:/ {print triad_best}
-  /^Failed Validation/   {print "FAILED"}
+  /^Solution Validates:/ {print "PASSED,"triad_best}
+  /^Failed Validation/   {print "FAILED,"}
 ')
 
-echo Test,Hostname,Timestamp,BestRate
+echo Test,Hostname,Timestamp,Validation,BestRate
 echo Stream-CPU,$(hostname),$(date '+%F %T'),$RESULT
