@@ -13,7 +13,6 @@ export OMP_PLACES=cores
 l3caches=$(lscpu | awk '/L3 cache:/{print $5}' | sed s'/(//')
 corespersocket=$( lscpu | awk '/Core\(s\) per socket:/{print $4}' )
 sockets=$( lscpu | awk '/Socket\(s\):/{print $2}' )
-echo "$sockets $cores"
 echo "$(( $sockets * $corespersocket )) core processors detected"
 cores=$(( $sockets * $corespersocket / $l3caches ))
 echo "Using $cores cores (threads) per process"
@@ -43,4 +42,4 @@ if [ ! -x $MPIRUN ]; then
     MPIRUN=mpirun
 fi
 
-$MPIRUN $mpi_options amd-zen-hpl-2023_07_18/xhpl > hpl.log
+$MPIRUN $mpi_options amd-zen-hpl-2023_07_18/xhpl > hpl.log 2>&1
