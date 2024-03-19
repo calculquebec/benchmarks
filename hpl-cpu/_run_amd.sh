@@ -8,11 +8,15 @@
 export OMP_PROC_BIND=TRUE
 # Have OpenMP ignore SMT siblings if SMT is enabled
 export OMP_PLACES=cores
-# Determine number of threads per L3 cache. Count cores per socket and
-# divide by 8 (8 L3s per socket)
-cores=$( lscpu | grep "Core(s) per socket" | awk '{print $4}' )
-echo "$cores core processors detected"
-cores=$(( $cores / 8 ))
+# Determine number of threads per L3 cache. Look for total number of
+# L3 caches and divide total number of cores by this
+l3caches=$(lscpu | awk '/L3 cache:/{print $5}' | sed s'/(//')
+corespersocket=$( lscpu | awk '/Core\(s\) per socket:/{print $4}' )
+sockets=$( lscpu | awk '/Socket\(s\):/{print $2}' )
+echo "$sockets $cores"
+echo "$(( $sockets * $corespersocket )) core processors detected"
+cores=$(( $sockets * $corespersocket / $l3caches ))
+echo "Using $cores cores (threads) per process"
 export OMP_NUM_THREADS=$cores
 
 # BLIS library environment variables
@@ -23,8 +27,8 @@ export BLIS_IC_NT=$cores
 export BLIS_JC_NT=1
 
 # OpenMPI settings
-# Launch 16 processes (one per L3 cache, two L3 per die, 4 die per socket, 2 sockets)
-mpi_options="-np 16"
+# Launch as one process per L3 cache
+mpi_options="-np $l3caches"
 # Use vader for Byte Transfer Layer
 mpi_options+=" --mca btl self,vader"
 # Map processes to L3 cache
@@ -34,10 +38,9 @@ mpi_options+=" --map-by l3cache"
 # Show bindings
 mpi_options+=" --report-bindings"
 
-export LD_LIBRARY_PATH=amd-blis/lib:aocc-compiler-2.2.0/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
-MPIRUN=/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Compiler/gcc9/openmpi/4.0.3/bin/mpirun
+MPIRUN=/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcc12/openmpi/4.1.5/bin/mpirun
 if [ ! -x $MPIRUN ]; then
     MPIRUN=mpirun
 fi
 
-$MPIRUN $mpi_options amd-hpl-blis-aocc/xhpl > hpl.log
+$MPIRUN $mpi_options amd-zen-hpl-2023_07_18/xhpl > hpl.log
