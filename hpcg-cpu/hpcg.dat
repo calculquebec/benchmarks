@@ -1,4 +1,4 @@
 HPCG benchmark input file
-Sandia National Laboratories; University of Tennessee, Knoxville
-192 128 128
+Calcul Québec - Single-node HPCG benchmark for CPU nodes
+160 160 160
 600

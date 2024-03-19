@@ -10,7 +10,7 @@ fi
 echo -e "Using ${NB_TASKS} MPI tasks"
 
 export OMP_NUM_THREADS=1
-echo -e "Using $OMP_NUM_THREADS OpenMP threads"
+echo -e "Using $OMP_NUM_THREADS OpenMP thread per task"
 
 # Change directory to the current scripts directory
 cd "$(dirname "$0")"
@@ -18,9 +18,9 @@ cd "$(dirname "$0")"
 # Execute the benchmark test without specific bindings to cores
 mpirun -n ${NB_TASKS} ./xhpcg
 
-# Execute the benchmark test with specific bindings to cores. Make sure 
-# that the myrankfile is placed in the same directory
-#mpirun -H ${HOSTNAME} -rf myrankfile --report-bindings ./xhpcg
+# Execute the benchmark test with specific bindings to cores
+# Make sure that the myrankfile is placed in the same directory
+#mpirun -rf myrankfile --report-bindings ./xhpcg
 
 # Output the result
 
