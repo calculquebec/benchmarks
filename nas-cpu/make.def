@@ -1,0 +1,17 @@
+FC = ifort
+FLINK = $(FC)
+F_LIB =
+F_INC =
+FFLAGS = -O3 -qopenmp -xHost -mcmodel=medium
+FLINKFLAGS = -O3 -qopenmp -xHost
+CC = icc
+CLINK = $(CC)
+C_LIB =
+C_INC =
+CFLAGS = -O3 -qopenmp -xHost
+CLINKFLAGS = -O3 -qopenmp -xHost
+UCC = cc
+BINDIR = ../bin
+RAND = randi8
+WTIME = wtime.c
+

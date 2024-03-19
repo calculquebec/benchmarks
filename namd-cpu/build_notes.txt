@@ -1,0 +1,49 @@
+### Instructions for Compiling NAMD-2.13 from Source ###
+
+# These instructions have been tested on Béluga using the Intel family of compilers in a CentOS environment but
+# they should work in a variety of HPC settings. The NAMD binary is assumed to be built in your $HOME directory.
+
+# Begin by extracting the source code for NAMD-2.13 and building the CHARM library,
+cd $HOME
+export CC=icc; export CXX=icpc; export F90=ifort; export F77=ifort
+tar -xzf NAMD_2.13_Source.tar.gz
+cd NAMD_2.13_Source
+cd charm-6.8.2
+./build charm++ multicore-linux-x86_64 icc --with-production "-O3 -ip -xCORE-AVX512 -qopt-zmm-usage=high"
+cd multicore-linux-x86_64-icc/tests/charm++/megatest
+make pgm
+./pgm +p4
+cd ../../../../../
+
+# Edit the file arch/Linux-x86_64-icc.arch so that it contains the following,
+NAMD_ARCH = Linux-x86_64
+CHARMARCH = multicore-linux-x86_64-icc
+FLOATOPTS = -ip -xCORE-AVX512
+CXX = icpc -std=c++11
+CXXOPTS = -O3 $(FLOATOPTS)
+CXXNOALIASOPTS = -O3 -fno-alias $(FLOATOPTS)
+CXXCOLVAROPTS = -O3 -ip
+CC = icc
+COPTS = -O3 $(FLOATOPTS)
+
+# Now run the following commands to get precompiled FFTW and TCL libraries and using them, to build NAMD itself,
+wget http://www.ks.uiuc.edu/Research/namd/libraries/fftw-linux-x86_64.tar.gz
+tar xzf fftw-linux-x86_64.tar.gz
+mv linux-x86_64 fftw
+wget http://www.ks.uiuc.edu/Research/namd/libraries/tcl8.5.9-linux-x86_64.tar.gz
+wget http://www.ks.uiuc.edu/Research/namd/libraries/tcl8.5.9-linux-x86_64-threaded.tar.gz
+tar xzf tcl8.5.9-linux-x86_64.tar.gz
+tar xzf tcl8.5.9-linux-x86_64-threaded.tar.gz
+mv tcl8.5.9-linux-x86_64 tcl
+mv tcl8.5.9-linux-x86_64-threaded tcl-threaded
+./config Linux-x86_64-icc --with-mkl
+cd Linux-x86_64-icc
+make -j2
+
+# Next modify your path to use this namd2 binary in your testing,
+export PATH=$HOME/NAMD_2.13_Source/Linux-x86_64-icc:$PATH
+# and check that this is correct,
+cd $HOME/benchmarks/namd-cpu
+./prepare.sh
+# before finally running the NAMD test case,
+./run.sh $NB_THREADS
