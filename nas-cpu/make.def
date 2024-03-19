@@ -1,15 +1,15 @@
-FC = ifort
+FC = gfortran
 FLINK = $(FC)
 F_LIB =
 F_INC =
-FFLAGS = -O3 -qopenmp -xHost -mcmodel=medium
-FLINKFLAGS = -O3 -qopenmp -xHost
-CC = icc
+FFLAGS = -O3 -fopenmp
+FLINKFLAGS = -O3 -fopenmp
+CC = gcc
 CLINK = $(CC)
 C_LIB =
 C_INC =
-CFLAGS = -O3 -qopenmp -xHost
-CLINKFLAGS = -O3 -qopenmp -xHost
+CFLAGS = -O3 -fopenmp
+CLINKFLAGS = -O3 -fopenmp
 UCC = cc
 BINDIR = ../bin
 RAND = randi8

@@ -1,16 +1,16 @@
 #!/bin/bash
 
-if [[ ! -f NPB3.4.1.tar.gz ]]; then
-	wget https://www.nas.nasa.gov/assets/npb/NPB3.4.1.tar.gz
+VERSION="3.4.2"
+FLAVOR="3.4-OMP"
+
+if [[ ! -f NPB${VERSION}.tar.gz ]]; then
+	wget https://www.nas.nasa.gov/assets/npb/NPB${VERSION}.tar.gz
 fi
-if [[ ! -d NPB3.4.1 ]]; then
-	tar xzvf NPB3.4.1.tar.gz
+if [[ ! -d NPB${VERSION} ]]; then
+	tar -zxvf NPB${VERSION}.tar.gz
 fi
 
-cp suite.def NPB3.4.1/NPB3.4-OMP/config
-cp make.def NPB3.4.1/NPB3.4-OMP/config
+cp suite.def make.def NPB${VERSION}/NPB${FLAVOR}/config/
 
-cd NPB3.4.1/NPB3.4-OMP
+cd NPB${VERSION}/NPB${FLAVOR}
 make suite
-
-

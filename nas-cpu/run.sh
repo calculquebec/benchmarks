@@ -1,7 +1,7 @@
 #!/bin/bash
 
 for i in $(cat suite.def | awk '{print $1"."$2}'); do
-  TEST=NPB3.4.1/NPB3.4-OMP/bin/${i}.x; 
+  TEST=NPB3.4.2/NPB3.4-OMP/bin/${i}.x;
   echo Running $TEST >&2
   $TEST
 done | awk '/Completed/     {test=$1}
