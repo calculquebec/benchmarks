@@ -1,46 +1,48 @@
 #!/bin/bash
 
-namd_version="2.13"
-archive_id="1568"    # Linux-x86_64-multicore (64-bit Intel/AMD single node)
+namd_version="3.0b6"
+archive_id="1695"    # Linux-x86_64-multicore (64-bit Intel/AMD single node)
 
 # Change directory to the current scripts directory
 cd "$(dirname "$0")"
 
-# Check if the namd2 binary is already in the path...
-if [ -x "$(command -v namd2)" ] ; then
-    namd2_path="$(realpath "$(command -v namd2)")"
-    echo "namd2 was found in path here: ${namd2_path}"
+# Check if the namd3 binary is already in the path...
+if [ -x "$(command -v namd3)" ] ; then
+    namd3_path="$(realpath "$(command -v namd3)")"
+    echo "namd3 was found in path here: ${namd3_path}"
     echo "This version will be preferred over any other"
 
     # Setting the symbolic link, if necessary
-    if [ -e "./namd2" ] ; then
-	    echo "./namd2 exists but will be replaced by a symlink to ${namd2_path}"
-	    rm -f ./namd2
+    if [ -e "./namd3" ] ; then
+        echo "./namd3 exists but will be replaced by a symbolic link"
+        rm -f ./namd3
     fi
 
-    echo "Linking ${namd2_path} to ./namd2"
-    ln -s ${namd2_path} namd2
+    echo "Linking ${namd3_path} to ./namd3"
+    ln -s ${namd3_path} namd3
 else
     arch="NAMD_${namd_version}_Linux-x86_64-multicore"
     filename="$arch.tar.gz"
 
     # Untar NAMD binary package if necessary
-    if [ -f $filename ]; then 
-        echo Extracting $filename...
-        tar -xf $filename
-	if [ -e "./namd2" ] ; then
-            echo "./namd2 exists but will be replaced by a link to ${PWD}/$arch/namd2"
-            rm -f ./namd2
+    if [ -f $filename ]; then
+        if [[ ! -d $arch ]]; then
+            echo Extracting $filename...
+            tar -xf $filename
         fi
-        echo "Linking ${PWD}/$arch/namd2 to ./namd2"
-        ln -s ${PWD}/$arch/namd2 namd2
+        if [ -e "./namd3" ] ; then
+            echo "./namd3 exists but will be replaced by a new symbolic link"
+            rm -f ./namd3
+        fi
+        echo "Linking ${PWD}/$arch/namd3 to ./namd3"
+        ln -s ${PWD}/$arch/namd3 namd3
     else
-        echo -e "Unable to find 'namd2' in the PATH environment variable or '$filename' in:\n\n\t${PWD}\n"
+        echo -e "Unable to find 'namd3' with the PATH environment variable."
+        echo -e "Unable to find '$filename' in:\n\n\t${PWD}\n"
         echo -e "NAMD $namd_version can be downloaded from this page:\n"
-        echo -e "\thttp://www.ks.uiuc.edu/Development/Download/download.cgi?PackageName=NAMD\n"
-        echo -n "You must use version $namd_version of NAMD. "
-        echo -e "You may either use the binary version of NAMD, downloadable from this address:\n"
-        echo -e "\thttp://www.ks.uiuc.edu/Development/Download/download.cgi?UserID=&AccessCode=&ArchiveID=${archive_id}\n"
-        echo "or compile namd2 from the source code and add it to your PATH environment variable."
+        echo -e "    https://www.ks.uiuc.edu/Development/Download/download.cgi?PackageName=NAMD\n"
+        echo -n "You must use version ${namd_version} of NAMD. "
+        echo -n "You may either use the binary version of NAMD, or compile "
+        echo "namd3 from the source code and add its location to your PATH."
     fi
 fi
