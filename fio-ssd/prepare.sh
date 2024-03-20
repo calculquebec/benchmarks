@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FIO_VERSION=3.23
+FIO_VERSION=3.36
 
 TAR_FILE="fio-$FIO_VERSION.tar.gz"
 SOURCE="fio-$FIO_VERSION"
