@@ -24,7 +24,7 @@ mpirun -n ${NB_TASKS} ./xhpcg
 
 # Output the result
 
-outFile=$(ls -1 HPCG-Benchmark_3.1* | tail -1)
+outFile=$(ls -1 *3.1_*.txt | tail -1)
 status=$(echo $(grep 'Result=' $outFile | cut -d= -f2) | tr ' ' '*')
 final=$(grep 'Final Summary::HPCG result' $outFile | tr '=' ' ' | cut -d' ' -f5,11)
 valid=$(echo $final | cut -d' ' -f1)
