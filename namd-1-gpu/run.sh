@@ -13,16 +13,16 @@ fi
 cd "$(dirname "$0")"
 
 # Execute the benchmark test
-echo -n > result_namd-gpu.txt
 
 for GPU_ID in $(nvidia-smi -L | tr : ' ' | cut -d' ' -f2); do
+  echo -n > result_namd-gpu_${GPU_ID}.txt
   echo "Using ${NB_THREADS} threads with GPU ID $GPU_ID"
-  ./namd3 +p${NB_THREADS} +idlepoll +devices $GPU_ID stmv_gpu/stmv_gpures_cq.namd >> result_namd-gpu.txt &
+  ./namd3 +p${NB_THREADS} +idlepoll +devices $GPU_ID stmv_gpu/stmv_gpures_cq.namd >> result_namd-gpu_${GPU_ID}.txt &
 done
 wait
 
 # Output the result
-RESULT=$(awk '/Benchmark time/ {a+=1.0/$6;i++} END {print a/i}' result_namd-gpu.txt)
+RESULT=$(awk '/Benchmark time/ {a+=1.0/$6;i++} END {print a/i}' result_namd-gpu_*.txt)
 
 echo Test,Hostname,Timestamp,NbThreads,StepsPerSec
 echo NAMD-1-GPU,$(hostname),$(date '+%F %T'),$NB_THREADS,$RESULT
