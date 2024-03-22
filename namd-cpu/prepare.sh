@@ -55,3 +55,14 @@ else
         echo "namd3 from the source code and add its location to your PATH."
     fi
 fi
+
+STMV="stmv.tar.gz"
+if [ -f $STMV ]; then
+	echo Extracting some benchmark files from $STMV
+	tar -zxf stmv.tar.gz stmv/par_all27_prot_na.inp stmv/stmv.pdb stmv/stmv.psf
+	cp stmv_cq.namd stmv/stmv_cq.namd
+else 
+	echo -e "Unable to find stmv benchmark file archive '$STMV' in:\n\n\t${PWD}\n"
+	echo -e "The archive can be downloaded from this link: \n"
+	echo -e "\thttps://www.ks.uiuc.edu/Research/namd/utilities/stmv.tar.gz"
+fi
