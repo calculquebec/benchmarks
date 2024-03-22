@@ -13,7 +13,7 @@ echo "Using ${NB_THREADS} threads"
 cd "$(dirname "$0")"
 
 # Execute the benchmark test
-./namd2 +p${NB_THREADS} stmv/stmv.namd > result_namd-cpu.txt
+./namd3 +p${NB_THREADS} stmv/stmv_cq.namd > result_namd-cpu.txt
 
 # Output the result
 RESULT=$(awk '/Benchmark time/ {a+=1.0/$6;i++} END {print a/i}' result_namd-cpu.txt)
