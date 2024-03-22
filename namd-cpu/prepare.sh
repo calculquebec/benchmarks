@@ -1,7 +1,8 @@
 #!/bin/bash
 
 namd_version="3.0b6"
-archive_id="1695"    # Linux-x86_64-multicore (64-bit Intel/AMD single node)
+#archive_id="1695"    # Linux-x86_64-multicore (64-bit Intel/AMD single node)
+#archive_id="1699"    # Linux-x86_64-multicore-AVX512 (x86_64 AVX-512)
 
 # Change directory to the current scripts directory
 cd "$(dirname "$0")"
@@ -21,8 +22,16 @@ if [ -x "$(command -v namd3)" ] ; then
     echo "Linking ${namd3_path} to ./namd3"
     ln -s ${namd3_path} namd3
 else
-    arch="NAMD_${namd_version}_Linux-x86_64-multicore"
-    filename="$arch.tar.gz"
+    arch_base="NAMD_${namd_version}_Linux-x86_64-multicore"
+    arch_avx512="NAMD_${namd_version}_Linux-x86_64-multicore-AVX512"
+    filename=""
+    if [ -f $arch_avx512.tar.gz ] ; then
+      filename=$arch_avx512.tar.gz
+      arch=$arch_avx512
+    elif [ -f $arch_base.tar.gz ] ; then
+      filename=$arch_base.tar.gz
+      arch=$arch_base
+    fi
 
     # Untar NAMD binary package if necessary
     if [ -f $filename ]; then
