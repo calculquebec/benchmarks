@@ -1,4 +1,5 @@
 #!/bin/bash
+source ai-bench-venv/bin/activate
 
 BASE_DIR=$PWD
 

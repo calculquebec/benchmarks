@@ -1,4 +1,6 @@
 #!/bin/bash
+python -m venv ai-bench-venv
+source ai-bench-venv/bin/activate
 
 BASE_DIR=$PWD
 SETUP_DIR=$PWD/setup
