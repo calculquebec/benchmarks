@@ -39,5 +39,5 @@ echo "Downloading benchmark artifacts..."
 python $SETUP_DIR/get_data_and_models.py
 
 echo "Done downloading artifacts."
-echo "Please execute run.sh to launch the benchmark."
+
 

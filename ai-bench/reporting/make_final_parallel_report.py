@@ -19,7 +19,7 @@ def load_json(report_file):
     return results
 
 
-bench_data = [[benchmark, load_json(f"./benchmarks/{benchmark}/results/{results_file}")] for benchmark in os.listdir("./benchmarks") for results_file in os.listdir(f"./benchmarks/{benchmark}/results/*8gpus.json")]
+bench_data = [[benchmark, load_json(f"./benchmarks/{benchmark}/results/report_8gpus.json")] for benchmark in os.listdir("./benchmarks") ]
 
 index, results = zip(*bench_data)
 
