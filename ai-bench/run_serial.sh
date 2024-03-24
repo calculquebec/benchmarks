@@ -49,5 +49,5 @@ cd $BASE_DIR
 
 echo "Collecting results and generating final performance report..."
 
-python $BASE_DIR/reporting/make_final_report.py
+python $BASE_DIR/reporting/make_final_serial_report.py
 
