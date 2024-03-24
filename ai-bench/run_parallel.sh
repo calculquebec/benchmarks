@@ -53,5 +53,10 @@ cd $BASE_DIR
 
 echo "Collecting results and generating final performance report..."
 
-python $BASE_DIR/reporting/make_final_parallel_report.py
+python $BASE_DIR/reporting/make_final_parallel_report.py | tee result_parallel.txt
 
+# Output the result
+RESULT=$(awk '/Final score/ {a=$3} END {print a}' result_parallel.txt)
+
+echo Test,Hostname,Timestamp,NbNodes,NbGPUPerNode,Score
+echo AI-PARALLEL,$(hostname),$(date '+%F %T'),$N_NODES,$N_GPUS,$RESULT
