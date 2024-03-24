@@ -50,5 +50,10 @@ cd $BASE_DIR
 
 echo "Collecting results and generating final performance report..."
 
-python $BASE_DIR/reporting/make_final_serial_report.py
+python $BASE_DIR/reporting/make_final_serial_report.py | tee result_serial.txt
 
+# Output the result
+RESULT=$(awk '/Final score/ {a=$3} END {print a}' result_serial.txt)
+
+echo Test,Hostname,Timestamp,Score
+echo AI-SERIAL,$(hostname),$(date '+%F %T'),$RESULT
