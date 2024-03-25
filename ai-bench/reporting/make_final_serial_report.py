@@ -1,6 +1,6 @@
 import os
 import json
-
+import glob
 import pandas as pd
 import numpy as np
 
@@ -19,7 +19,7 @@ def load_json(report_file):
     return results
 
 
-bench_data = [[benchmark, load_json(f"./benchmarks/{benchmark}/results/{results_file}")] for benchmark in os.listdir("./benchmarks") for results_file in os.listdir(f"./benchmarks/{benchmark}/results/*1gpus.json")]
+bench_data = [[benchmark, load_json(results_file)] for benchmark in os.listdir(f"./benchmarks/") for results_file in glob.glob(f"./benchmarks/{benchmark}/results/*1gpus.json")]
 
 index, results = zip(*bench_data)
 
