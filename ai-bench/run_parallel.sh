@@ -30,7 +30,7 @@ run_bench_parallel(){
 
        else
 
-          accelerate launch  --mixed_precision=fp16 --num_machines=${N_NODES} --num_processes=${N_PROCS} --main_process_ip=${MAIN_NODE} --main_process_port=${MAIN_PORT} --machine_rank=${MACHINE_RANK} main.py
+          accelerate launch --multi_gpu --mixed_precision=fp16 --num_machines=${N_NODES} --num_processes=${N_PROCS} --main_process_ip=${MAIN_NODE} --main_process_port=${MAIN_PORT} --machine_rank=${MACHINE_RANK} main.py
 
        fi
 
