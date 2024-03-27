@@ -12,26 +12,18 @@ export TRANSFORMERS_OFFLINE=1
 
 export CUBLAS_WORKSPACE_CONFIG=:4096:8
 
-read -p "How many GPUs will be used to run this benchmark?" N_GPUS;
+read -p "How many GPUs will be used to run this benchmark?" n_proc;
+
+export BENCH_PARALLELISM="DISABLED"
 
 run_bench(){
+   
+   cd $BASE_DIR/benchmarks/$1
+   echo "Running $1 benchmark in serial mode with $n_proc device(s)..."
 
-   for n_proc in $(seq 1 $N_GPUS)
-   do  
-       cd $BASE_DIR/benchmarks/$1
-       echo "Running $1 benchmark with $n_proc device(s)..."
-
-       if [ "$1" == "large_language_model" ]; then
-
-          accelerate launch --mixed_precision=fp16 --num_machines=1 --num_processes=$n_proc --config_file="${BASE_DIR}/configs/fsdp_llama.yaml"  main.py
-
-       else
-
-          accelerate launch --mixed_precision=fp16 --num_machines=1 --num_processes=$n_proc  main.py
-
-       fi
-       
-   done
+      
+   accelerate launch --mixed_precision=fp16 --num_machines=1 --num_processes=$n_proc  main.py --max_epochs=10
+ 
 }
 
 

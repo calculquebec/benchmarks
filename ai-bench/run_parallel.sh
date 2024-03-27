@@ -17,6 +17,9 @@ MAIN_PORT=$2
 N_NODES=$3
 N_GPUS=$4
 MACHINE_RANK=$OMPI_COMM_WORLD_RANK
+
+export BENCH_PARALLELISM="ENABLED"
+
 run_bench_parallel(){
 
    cd $BASE_DIR/benchmarks/$1
