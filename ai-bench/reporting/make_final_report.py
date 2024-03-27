@@ -8,6 +8,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='GPU perf reporting script')
 parser.add_argument('--score_with', default='train_samples_per_second', help='')
+parser.add_argument('--n_gpus', default=1, help='')
 
 args = parser.parse_args()
 
@@ -19,14 +20,14 @@ def load_json(report_file):
     return results
 
 
-bench_data = [[benchmark, load_json(f"./benchmarks/{benchmark}/results/report_8gpus.json")] for benchmark in os.listdir("./benchmarks") ]
+bench_data = [[benchmark, load_json(f"./benchmarks/{benchmark}/results/report_{args.n_gpus}gpus.json")] for benchmark in os.listdir("./benchmarks") ]
 
 index, results = zip(*bench_data)
 
 results_df = pd.DataFrame(results, index=pd.Index(index,name='Benchmark'))
 results_df.reset_index(inplace=True)
 
-weights_data = load_json("./reporting/weights8gpu.json")
+weights_data = load_json("./reporting/weights{args.n_gpus}gpu.json")
 weights_data = [[benchmark["benchmark"],weight] for benchmark in weights_data["benchmarks"] for weight in benchmark["weights"]]
 
 index, weights = zip(*weights_data)

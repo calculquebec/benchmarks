@@ -42,7 +42,7 @@ cd $BASE_DIR
 
 echo "Collecting results and generating final performance report..."
 
-python $BASE_DIR/reporting/make_final_serial_report.py | tee result_serial.txt
+python $BASE_DIR/reporting/make_final_report.py --n_gpus=1 | tee result_serial.txt
 
 # Output the result
 RESULT=$(awk '/Final score/ {a=$3} END {print a}' result_serial.txt)
