@@ -32,7 +32,9 @@ accelerator = Accelerator()
 
 report = init_report()
 
-report["num_gpus"] = accelerator.num_processes
+benchmark_parallelism = os.environ["BENCH_PARALLELISM"]
+
+report["num_gpus"] = accelerator.num_processes if benchmark_parallelism == "ENABLED" else 1
 
 def main():
 
@@ -44,7 +46,7 @@ def main():
 
     net = resnet152() # Load model on the GPU
 
-    criterion = nn.CrossEntropyLoss() # Load the loss function on the GPU
+    criterion = nn.CrossEntropyLoss().cuda() # Load the loss function on the GPU
     optimizer = optim.SGD(net.parameters(), lr=args.lr)
 
     transform_train = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
@@ -53,7 +55,7 @@ def main():
 
     train_loader = DataLoader(dataset_train, batch_size=args.batch_size, num_workers=args.num_workers)
 
-    net, optimizer, train_loader = accelerator.prepare(net,optimizer,train_loader)
+    net, optimizer, train_loader = accelerator.prepare(net,optimizer,train_loader) if benchmark_parallelism == 'ENABLED' else (net.cuda(), optimizer, train_loader)
 
     # Pre-load data in GPU memory to get higher usage:
 
@@ -74,8 +76,16 @@ def main():
           inputs = inputs
           targets = targets
 
-          outputs = net(inputs)
-          loss = criterion(outputs, targets)
+          if benchmark_parallelism == 'DISABLED':
+
+             with torch.autocast(device_type="cuda"):
+
+                outputs = net(inputs)
+                loss = criterion(outputs, targets)
+
+          else:
+                outputs = net(inputs)
+                loss = criterion(outputs, targets)
 
           optimizer.zero_grad()
           accelerator.backward(loss)
@@ -98,8 +108,10 @@ def main():
     images_per_sec = torch.Tensor(perf).cuda()
     all_batch_times = torch.Tensor(perf_time).cuda()
 
+    reduce_op = "sum" if benchmark_parallelism  == 'ENABLED' else "mean"
+
     avg_batch_time = all_batch_times.mean().item() if accelerator.distributed_type=='NO' else accelerator.reduce(all_batch_times, reduction="mean").mean().item()
-    images_per_sec = images_per_sec.mean().item() if accelerator.distributed_type=='NO' else accelerator.reduce(images_per_sec, reduction="sum").mean().item()
+    images_per_sec = images_per_sec.mean().item() if accelerator.distributed_type=='NO' else accelerator.reduce(images_per_sec, reduction=reduce_op).mean().item()
 
     if accelerator.is_main_process:
 
