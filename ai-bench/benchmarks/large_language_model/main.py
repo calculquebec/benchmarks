@@ -24,7 +24,7 @@ proc_id = None
 
 report = init_report()
 
-proc_id = int(os.environ['LOCAL_RANK'])
+proc_id = os.environ['LOCAL_RANK']
 
 if os.environ['BENCH_PARALLELISM'] == "ENABLED":
 
@@ -117,7 +117,7 @@ def main():
 
        print(report)
 
-       return report
+   return report
 
 if __name__=='__main__':
 
