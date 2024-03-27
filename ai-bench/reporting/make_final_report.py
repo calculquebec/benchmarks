@@ -27,7 +27,7 @@ index, results = zip(*bench_data)
 results_df = pd.DataFrame(results, index=pd.Index(index,name='Benchmark'))
 results_df.reset_index(inplace=True)
 
-weights_data = load_json("./reporting/weights{args.n_gpus}gpu.json")
+weights_data = load_json(f"./reporting/weights{args.n_gpus}gpu.json")
 weights_data = [[benchmark["benchmark"],weight] for benchmark in weights_data["benchmarks"] for weight in benchmark["weights"]]
 
 index, weights = zip(*weights_data)
