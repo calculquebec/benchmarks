@@ -2,6 +2,8 @@ import sys
 sys.path.append("../../reporting/") # Will make the whole bench into a package eventually, but for now...
 from reporting_utils import init_report, save_report
 
+import os
+
 import torch
 import torch.optim as optim
 
@@ -30,7 +32,10 @@ accelerator = Accelerator()
 
 report = init_report()
 
-report["num_gpus"] = accelerator.num_processes
+benchmark_parallelism = os.environ["BENCH_PARALLELISM"]
+
+report["num_gpus"] = accelerator.num_processes if benchmark_parallelism == "ENABLED" else 1
+
 
 def main():
 
@@ -42,14 +47,14 @@ def main():
 
     net = Unet3D(1, 3, normalization="instancenorm", activation="relu")
 
-    criterion =  DiceCELoss(to_onehot_y=False ,use_softmax=True, layout='NCDHW',include_background=False)
+    criterion =  DiceCELoss(to_onehot_y=False ,use_softmax=True, layout='NCDHW',include_background=False).cuda()
     optimizer = optim.Adam(net.parameters(), lr=args.lr)
 
     dataset_train = SyntheticDataset()
 
     train_loader = DataLoader(dataset_train, batch_size=args.batch_size, num_workers=args.num_workers)
 
-    net, optimizer, train_loader = accelerator.prepare(net,optimizer,train_loader)
+    net, optimizer, train_loader = accelerator.prepare(net,optimizer,train_loader) if benchmark_parallelism == 'ENABLED' else (net.cuda(), optimizer, train_loader)
 
     batches = [(batch_idx,(inputs.cuda(),targets.cuda())) for batch_idx, (inputs, targets) in enumerate(train_loader)]
 
@@ -70,8 +75,16 @@ def main():
           inputs = inputs
           targets = targets
 
-          outputs = net(inputs)
-          loss = criterion(outputs, targets)
+          if benchmark_parallelism == 'DISABLED':
+             
+             with torch.autocast(device_type="cuda"):
+
+                outputs = net(inputs)
+                loss = criterion(outputs, targets)
+
+          else:
+                outputs = net(inputs)
+                loss = criterion(outputs, targets)
 
           optimizer.zero_grad()
           accelerator.backward(loss)
@@ -94,8 +107,10 @@ def main():
     images_per_sec = torch.Tensor(perf).cuda()
     all_batch_times = torch.Tensor(perf_time).cuda()
 
+    reduce_op = "sum" if benchmark_parallelism == 'ENABLED' else "mean"
+
     avg_batch_time = all_batch_times.mean().item() if accelerator.distributed_type=='NO' else accelerator.reduce(all_batch_times, reduction="mean").mean().item()
-    images_per_sec = images_per_sec.mean().item() if accelerator.distributed_type=='NO' else accelerator.reduce(images_per_sec, reduction="sum").mean().item()
+    images_per_sec = images_per_sec.mean().item() if accelerator.distributed_type=='NO' else accelerator.reduce(images_per_sec, reduction=reduce_op).mean().item()
 
 
     if accelerator.is_main_process:
