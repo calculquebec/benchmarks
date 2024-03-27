@@ -7,9 +7,6 @@ import os
 import argparse
 import time
 
-import torch
-
-
 import transformers
 from transformers import LlamaForCausalLM, LlamaTokenizerFast
 from transformers.models.llama.configuration_llama import LlamaConfig
@@ -22,19 +19,37 @@ from accelerate import Accelerator
 
 from trl import SFTTrainer
 
-
-
-accelerator = Accelerator()
+accelerator = None
+proc_id = None
 
 report = init_report()
 
-report["num_gpus"] = accelerator.num_processes
+proc_id = int(os.environ['LOCAL_RANK'])
+
+if os.environ['BENCH_PARALLELISM'] == "ENABLED":
+
+   accelerator = Accelerator()
+   report["num_gpus"] = accelerator.num_processes
+
+else:
+   report["num_gpus"] = 1
+   os.environ['CUDA_VISIBLE_DEVICES'] = os.environ['LOCAL_RANK']
+   os.environ['MASTER_PORT'] = str(int(os.environ['LOCAL_RANK']) + 3456)
+   os.environ['WORLD_SIZE'] = "1"
+   os.environ.pop('RANK')
+   os.environ.pop('LOCAL_RANK')
+
    
 def main():
+
+   import torch
 
    torch.backends.cudnn.benchmark = False
    torch.use_deterministic_algorithms(True)
    torch.manual_seed(42)
+
+   if os.environ['BENCH_PARALLELISM'] == "DISABLED":
+     torch.cuda.set_device(0) 
 
 
    with open("./llama_model.config", "r") as file:
@@ -85,6 +100,8 @@ def main():
    
    trainer.train()
 
+   accelerator = Accelerator()
+
    accelerator.wait_for_everyone()
 
    training_history = trainer.state.log_history[-1]
@@ -108,10 +125,19 @@ if __name__=='__main__':
       report  = main()
 
    except:
-      if accelerator.is_main_process:
-         print("Benchmark FAILED. Skipping...")
+      if accelerator:
+         if accelerator.is_main_process:
+            print("Benchmark FAILED. Skipping...")
+      else:
+         if proc_id == "0":
+             print("Benchmark FAILED. Skipping...")
+
       report["status"]="FAIL"
 
-   if accelerator.is_main_process:
-      save_report(report)
+   if accelerator:
+      if accelerator.is_main_process:
+         save_report(report)
+   else:
+       if proc_id == "0":
+         save_report(report)
 
