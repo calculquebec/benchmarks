@@ -22,7 +22,7 @@ run_bench(){
    echo "Running $1 benchmark in serial mode with $n_proc device(s)..."
 
       
-   accelerate launch --mixed_precision=fp16 --num_machines=1 --num_processes=$n_proc  main.py --max_epochs=10
+   accelerate launch --mixed_precision=fp16 --num_machines=1 --num_processes=$n_proc  main.py --max_epochs=35
  
 }
 

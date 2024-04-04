@@ -89,7 +89,7 @@ def main():
         per_device_train_batch_size=8,
         gradient_accumulation_steps=1,
         gradient_checkpointing=True,
-        max_steps=3,
+        max_steps=15,
         logging_steps=1,
         learning_rate=2.5e-5, # Want a small lr for finetuning
         optim="adamw_torch",

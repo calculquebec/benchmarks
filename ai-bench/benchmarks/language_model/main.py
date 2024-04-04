@@ -56,7 +56,7 @@ def main():
 
    training_args = {'output_dir': "./",
         'per_device_train_batch_size': 512,
-        'num_train_epochs': 10,
+        'num_train_epochs': 85,
         'learning_rate': 2.5e-5, # Want a small lr for finetuning
         'optim': "adamw_torch",
         'logging_dir': "./logs",
