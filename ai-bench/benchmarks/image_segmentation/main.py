@@ -75,19 +75,21 @@ def main():
           inputs = inputs
           targets = targets
 
+          optimizer.zero_grad()
+
           if benchmark_parallelism == 'DISABLED':
-             
+
              with torch.autocast(device_type="cuda"):
 
                 outputs = net(inputs)
                 loss = criterion(outputs, targets)
+                loss.backward()
 
           else:
                 outputs = net(inputs)
                 loss = criterion(outputs, targets)
+                accelerator.backward(loss)
 
-          optimizer.zero_grad()
-          accelerator.backward(loss)
           optimizer.step()
 
           torch.cuda.synchronize()
