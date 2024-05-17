@@ -97,7 +97,8 @@ if __name__=='__main__':
    try:
       report  = main()
 
-   except:
+   except Exception as e:
+      print(f"ERROR: {e}")
       if accelerator:
          if accelerator.is_main_process:
             print("Benchmark FAILED. Skipping...")
